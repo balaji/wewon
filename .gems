@@ -1,1 +1,4 @@
 sinatra
+haml
+curb
+nokogiri
