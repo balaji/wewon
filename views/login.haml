@@ -1,0 +1,16 @@
+!!!
+%html
+  %head
+    %title
+      Login
+    %body
+      %h3
+        Login with Version One Credentials
+      %form{:action => '/log-in', :method => 'POST'}
+        %span
+          Name
+        %input{:name => 'name'}
+        %span
+          Password
+        %input{:type => 'password', :name => 'password'}
+        %input{:type => 'submit'}        
