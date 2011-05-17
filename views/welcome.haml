@@ -9,3 +9,12 @@
         Logout
     #content{:style => 'float:left'}
       %p= "Welcome, #{session[:user_name]}"
+      %p Data
+      %table{:border => 1}
+        - @data.each do |dat|
+          %tr
+            %td= "#{dat[:name]}"
+            %td= "#{dat[:status]}"
+            %td= "#{dat[:estimate]}"
+            %td= "#{dat[:number]}"
+
