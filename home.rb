@@ -2,6 +2,7 @@ require 'sinatra'
 require 'haml'
 require 'curb'
 require 'nokogiri'
+require 'json'
 
 enable :sessions
 
@@ -17,6 +18,7 @@ get '/logout' do
   session[:user_name] = nil
   session[:login_name] = nil
   session[:password] = nil
+  session[:data] = nil
   redirect '/'
 end
 
@@ -44,10 +46,24 @@ get '/success' do
   @data = []
   Nokogiri::XML(c.body_str).xpath('//Assets/Asset').each do |row|
     @data.push({:number => row.at_xpath('Attribute[@name="Number"]/text()').to_s,
-    :status => row.at_xpath('Attribute[@name="Status.Name"]/text()').to_s,
-    :name => row.at_xpath('Attribute[@name="Name"]/text()').to_s,
-    :estimate => row.at_xpath('Attribute[@name="Estimate"]/text()').to_s})
+                :status => row.at_xpath('Attribute[@name="Status.Name"]/text()').to_s,
+                :name => row.at_xpath('Attribute[@name="Name"]/text()').to_s,
+                :estimate => ((row.at_xpath('Attribute[@name="Estimate"]/text()').to_s == "")? "-" : row.at_xpath('Attribute[@name="Estimate"]/text()').to_s),
+                :story_id => row.at_xpath("@id").to_s.split(':').last})
   end
-  puts @data
+  session[:data] = @data
   haml :welcome
+end
+
+get '/data.json' do
+  content_type :json
+  session[:data].to_json
+end
+
+get '/history' do
+  content_type :json
+  C = Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Hist/Story/#{param[:story_id]}?sel=ChangeDate,Status.Name&where=Status.Name=%27In%20Progress%27&sort=ChangeDate")
+  c.perform
+  Nokogiri::XML(c.body_str).xpath('//History/Asset').each do |row|
+  end
 end

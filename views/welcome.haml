@@ -3,18 +3,24 @@
   %head
     %title
       Sprint Data
+    %script{:type => "text/javascript", :src => "raphael-min.js"}
+    %script{:type => "text/javascript", :src => "g.raphael-min.js"}
+    %script{:type => "text/javascript", :src => "g.pie-min.js"}
+    %script{:type => "text/javascript", :src => "jquery-1.6.1.min.js"}
+    %script{:type => "text/javascript", :src => "application.js"}
   %body
     #link{:style => 'float:right'}
       %a{:href => '/logout'}
         Logout
     #content{:style => 'float:left'}
       %p= "Welcome, #{session[:user_name]}"
-      %p Data
-      %table{:border => 1}
-        - @data.each do |dat|
-          %tr
-            %td= "#{dat[:name]}"
-            %td= "#{dat[:status]}"
-            %td= "#{dat[:estimate]}"
-            %td= "#{dat[:number]}"
+      %br
+        %table{:border => 1}
+          - @data.each do |dat|
+            %tr
+              %td= "#{dat[:name]}"
+              %td= "#{dat[:status]}"
+              %td= "#{dat[:estimate]}"
+              %td= "#{dat[:number]}"
+        #pie
 

@@ -2,3 +2,4 @@ sinatra
 haml
 curb
 nokogiri
+json
