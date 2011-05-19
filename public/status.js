@@ -28,7 +28,7 @@ $(document).ready(function() {
   }
 
   $.ajax({
-    url: "/data.json",
+    url: "/status.json",
   method: "get",
   dataType: "json",
   success: function(res) {

@@ -32,7 +32,7 @@ post '/log-in' do
     session[:user_name] = name
     session[:login_name] = params[:name]
     session[:password] = params[:password]
-    redirect '/success'
+    redirect '/snapshot'
   end
 end
 
@@ -40,30 +40,43 @@ get '/unauthorized' do
   haml :unauthorized
 end
 
-get '/success' do
-  c = Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Data/Story\?sel\=Name,Estimate,Number,Status.Name\&where\=%28Team.Name\=%27SAS%20EMEA%20Integration%20Team%27\;Timebox.Name\=%27Sprint%207%27%29")
-  c.perform
-  @data = []
-  Nokogiri::XML(c.body_str).xpath('//Assets/Asset').each do |row|
-    @data.push({:number => row.at_xpath('Attribute[@name="Number"]/text()').to_s,
-                :status => row.at_xpath('Attribute[@name="Status.Name"]/text()').to_s,
-                :name => row.at_xpath('Attribute[@name="Name"]/text()').to_s,
-                :estimate => ((row.at_xpath('Attribute[@name="Estimate"]/text()').to_s == "")? "-" : row.at_xpath('Attribute[@name="Estimate"]/text()').to_s),
-                :story_id => row.at_xpath("@id").to_s.split(':').last})
+get '/snapshot' do
+  unless not session[:data].nil?
+    c = Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Data/Story\?sel\=Name,Estimate,Number,Status.Name\&where\=%28Team.Name\=%27SAS%20EMEA%20Integration%20Team%27\;Timebox.Name\=%27Sprint%207%27%29")
+    c.perform
+    @data = []
+    Nokogiri::XML(c.body_str).xpath('//Assets/Asset').each do |row|
+      @data.push({:number => row.at_xpath('Attribute[@name="Number"]/text()').to_s,
+                  :status => row.at_xpath('Attribute[@name="Status.Name"]/text()').to_s,
+                  :name => row.at_xpath('Attribute[@name="Name"]/text()').to_s,
+                  :estimate => ((row.at_xpath('Attribute[@name="Estimate"]/text()').to_s == "")? "-" : row.at_xpath('Attribute[@name="Estimate"]/text()').to_s),
+                  :story_id => row.at_xpath("@id").to_s.split(':').last})
+    end
+    session[:data] = @data
   end
-  session[:data] = @data
-  haml :welcome
+  haml :snapshot, :layout => :rummy
 end
 
-get '/data.json' do
+get '/status' do
+  haml :status, :layout => :rummy
+end
+
+get '/status.json' do
   content_type :json
   session[:data].to_json
 end
 
-get '/history' do
+get '/history.json' do
   content_type :json
-  C = Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Hist/Story/#{param[:story_id]}?sel=ChangeDate,Status.Name&where=Status.Name=%27In%20Progress%27&sort=ChangeDate")
-  c.perform
-  Nokogiri::XML(c.body_str).xpath('//History/Asset').each do |row|
+  ret = {}
+  session[:data].each do |hash|
+    c = Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Hist/Story/#{hash[:story_id]}?sel=ChangeDate,Status.Name&where=Status.Name=%27In%20Progress%27&sort=ChangeDate")
+    c.perform
+    r = []
+    Nokogiri::XML(c.body_str).xpath('//History/Asset').each do |row|
+      r.push(row.at_xpath('Attribute[@name="ChangeDate"]/text()').to_s)
+    end
+    ret[hash[:story_id]] = r
   end
+  ret.to_json
 end

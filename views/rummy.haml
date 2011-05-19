@@ -1,0 +1,23 @@
+!!!
+%html
+  %head
+    %title
+      Version One Visualization
+    %script{:type => "text/javascript", :src => "raphael-min.js"}
+    %script{:type => "text/javascript", :src => "g.raphael-min.js"}
+    %script{:type => "text/javascript", :src => "g.pie-min.js"}
+    %script{:type => "text/javascript", :src => "jquery-1.6.1.min.js"}
+  %body
+    %table
+      %tbody
+        %tr
+          %td
+            %a{:href => "/snapshot"}
+              Tabular Data
+          %td
+            %a{:href => "/status"}
+              Sprint Status
+          %td
+            %a{:href => "/bar"}
+              Story-wise
+    = yield
