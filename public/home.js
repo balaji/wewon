@@ -1,21 +1,4 @@
 $(document).ready(function() {
-  $.ajax({
-    url: "/sprints.json",
-  method: "get",
-  dataType: "json",
-  success: function(response) {
-    $.each(response, function(i) {
-      console.log(response[i]);
-    });
-  },
-  failure: function() {
-           }
-  });
-
-  $("#sprintSelect").change(function() {
-    alert($(this).val());
-  });
-
   var hoverIn = function () {
     this.sector.stop();
     this.sector.scale(1.1, 1.1, this.cx, this.cy);
@@ -43,27 +26,21 @@ $(document).ready(function() {
     pie.hover(hoverIn, hoverOut);
   }
 
-  $("#tabular").click(function() {
-    $.ajax({url: "/status.json",
-      method: "get",
-    dataType: "json",
-    success: function(res) {
-      var definedPoints = 0, inProgressPoints = 0, blockedPoints = 0, donePoints = 0, inQaPoints = 0;
-      $.each(res, function(i) {
-        if(res[i].status == 'Defined') definedPoints += ((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);
-        if(res[i].status == 'In Progress') inProgressPoints += ((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);
-        if(res[i].status == 'Done') donePoints += ((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);      
-        if(res[i].status == 'In QA') inQaPoints +=((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);
-        if(res[i].status == 'Blocked') blockedPoints +=((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);    
-      });
-      paintPieChart('pie', 120, [definedPoints, inProgressPoints, donePoints, inQaPoints, blockedPoints], ["Defined - " + definedPoints + " points", 
-        "In Progress - " + inProgressPoints + " points", 
-        "Done - " + donePoints + " points", 
-        "In QA - " + inQaPoints + " points", 
-        "Blocked - " + blockedPoints + " points"]);
-    },
-    failure: function() {
-             }
+  $.getJSON("/status.json", function(res) {
+    var definedPoints = 0, inProgressPoints = 0, blockedPoints = 0, donePoints = 0, inQaPoints = 0, acceptedPoints = 0;
+    $.each(res, function(i) {
+      if(res[i].status == 'Defined') definedPoints += ((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);
+      if(res[i].status == 'In Progress') inProgressPoints += ((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);
+      if(res[i].status == 'Done') donePoints += ((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);      
+      if(res[i].status == 'In QA') inQaPoints +=((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);
+      if(res[i].status == 'Blocked') blockedPoints +=((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);    
+      if(res[i].status == 'Accepted') acceptedPoints +=((res[i].estimate != "-") ? parseInt(res[i].estimate) : 0);    
     });
+    paintPieChart('pie', 120, [definedPoints, inProgressPoints, donePoints, inQaPoints, blockedPoints, acceptedPoints], ["Defined - " + definedPoints + " points", 
+      "In Progress - " + inProgressPoints + " points", 
+      "Done - " + donePoints + " points", 
+      "In QA - " + inQaPoints + " points", 
+      "Blocked - " + blockedPoints + " points",
+      "Accepted - " + acceptedPoints + " points"]);
   });
 });

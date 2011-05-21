@@ -1,5 +1,5 @@
 %table{:border => 1}
-  - session[:data].each do |dat|
+  - settings.cache.get("data_#{session[:sprint]}").each do |dat|
     %tr
       %td= "#{dat[:name]}"
       %td= "#{dat[:status]}"
