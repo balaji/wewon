@@ -42,19 +42,36 @@ end
 
 get '/snapshot' do
   unless not session[:data].nil?
-    c = Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Data/Story\?sel\=Name,Estimate,Number,Status.Name\&where\=%28Team.Name\=%27SAS%20EMEA%20Integration%20Team%27\;Timebox.Name\=%27Sprint%207%27%29")
+    s = 'Sprint 7'
+    c = Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Data/Story\?sel\=Name,Estimate,Number,Status.Name\&where\=%28Team.Name\=%27SAS%20EMEA%20Integration%20Team%27\;Timebox.Name\=%27" + s + "%27%29")
     c.perform
     @data = []
     Nokogiri::XML(c.body_str).xpath('//Assets/Asset').each do |row|
-      @data.push({:number => row.at_xpath('Attribute[@name="Number"]/text()').to_s,
-                  :status => row.at_xpath('Attribute[@name="Status.Name"]/text()').to_s,
-                  :name => row.at_xpath('Attribute[@name="Name"]/text()').to_s,
-                  :estimate => ((row.at_xpath('Attribute[@name="Estimate"]/text()').to_s == "")? "-" : row.at_xpath('Attribute[@name="Estimate"]/text()').to_s),
-                  :story_id => row.at_xpath("@id").to_s.split(':').last})
+      @data.push({
+        :number => row.at_xpath('Attribute[@name="Number"]/text()').to_s,
+        :status => row.at_xpath('Attribute[@name="Status.Name"]/text()').to_s,
+        :name => row.at_xpath('Attribute[@name="Name"]/text()').to_s,
+        :estimate => ((row.at_xpath('Attribute[@name="Estimate"]/text()').to_s == "")? "-" : row.at_xpath('Attribute[@name="Estimate"]/text()').to_s),
+        :story_id => row.at_xpath("@id").to_s.split(':').last
+      })
     end
     session[:data] = @data
   end
   haml :snapshot, :layout => :rummy
+end
+
+get '/sprints.json' do
+  c= Curl::Easy.new("https://#{session[:login_name]}:#{session[:password]}@www10.v1host.com/sandp/rest-1.v1/Data/Timebox?sel=Name,BeginDate,EndDate&where=%28Schedule.Name=%27SAS_Global_Sprint_Schedule%27%29")
+  c.perform
+  sprints = []
+  Nokogiri::XML(c.body_str).xpath('//Assets/Asset').each do |row|
+    sprints.push({
+      :name => row.at_xpath('Attribute[@name="Name"]/text()').to_s,
+      :begin_date => row.at_xpath('Attribute[@name="BeginDate"]/text()').to_s,
+      :end_date => row.at_xpath('Attribute[@name="EndDate"]/text()').to_s,
+    })
+  end
+  sprints.to_json
 end
 
 get '/status' do
