@@ -1,0 +1,18 @@
+%script{:type => "text/javascript", :src => "transitions.js"}
+%script{:type => "text/javascript", :src => "jgcharts.pack.js"}
+%script{:type => "text/javascript", :src => "jquery-ui-1.8.13.custom.min.js"}
+%link{:rel => "stylesheet", :type => "text/css", :href => "/css/jquery-ui-1.8.13.custom.css"}
+%link{:rel => "stylesheet", :type => "text/css", :href => "/css/transitions.css"}
+#loading
+#container{:style => "display:none;"}
+  - settings.cache.get("data_#{session[:sprint]}").each do |hash|
+    %a{:href => "#", :class => "modal", :id => "modal_#{hash[:story_id]}"}
+      %span{:style => "display:inline-block;vertical-align:middle;padding:3px;", :id => "bar#{hash[:story_id]}"}
+        = "#{hash[:name]}"
+        %br
+        %strong= "Estimate: #{hash[:estimate]}"
+        %br
+        %strong= "Current Status: #{hash[:status]}"
+        %br
+        %br
+    %div{:class=> "modal_dialog", :style => "display:none;", :id => "div_#{hash[:story_id]}", :title => "#{hash[:name]}"}

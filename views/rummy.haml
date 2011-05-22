@@ -8,8 +8,8 @@
     %script{:type => "text/javascript", :src => "g.pie-min.js"}
     %script{:type => "text/javascript", :src => "jquery-1.6.1.min.js"}
   %body
-    #content{:style => 'float:left'}
-      %table
+    #content{:style => 'float:left;width: 500px;'}
+      %table{:width => "100%"}
         %tbody
           %tr
             %td
@@ -19,16 +19,16 @@
               %a{:href => "/status"}
                 Sprint Status
             %td
-              %a{:href => "/bar"}
+              %a{:href => "/transitions"}
                 Story-wise
             %td
               %a{:href => "/sprint"}
                 Change Sprint
           %tr
             %td{:colspan => "100%", :align => "center"}
-              %span= "Welcome, #{session[:user_name]}"
-              %span= "Sprint - #{session[:sprint]}"
-              %span= sprint_display
+              %div= "Hi, #{session[:user_name]}"
+              %div= "Sprint - #{session[:sprint]}"
+              %div= sprint_display
     #link{:style => 'float:right'}
       %a{:href => '/logout'}
         Logout

@@ -6,6 +6,12 @@
     %script{:type => "text/javascript", :src => "jquery-1.6.1.min.js"}
     %script{:type => "text/javascript", :src => "sprint.js"}
   %body
-    %select{:id => "sprintSelect"}
-      %option{:id => "select"}
-        Select
+    #left{:style => "float:left;"}
+      Select Sprint:
+      %select{:id => "sprintSelect"}
+        %option{:id => "select"}
+          Select
+      #loading
+    #right{:style => "float:right"}
+      %a{:href => "/logout"}
+        Logout
